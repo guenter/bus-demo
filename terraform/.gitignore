@@ -1,9 +1,0 @@
-dcos/
-.idea/
-.terraform/
-*.tfstate
-*.tfstate.backup
-*.plan
-*.tfvars
-/cloudformation.json
-/cloudformation-single.json

@@ -1,4 +1,0 @@
-[0m[[0minfo[0m] [0m[32mTestTileCalc:[0m[0m
-[0m[[0minfo[0m] [0m[32mTileCalc[0m[0m
-[0m[[0minfo[0m] [0m[32m- should create a tile for a given coordinate[0m[0m
-[0m[[0minfo[0m] [0m[32m- should produce multiple tiles for a boundingBox[0m[0m
