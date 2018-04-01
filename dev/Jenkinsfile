@@ -8,11 +8,11 @@ node {
     stage 'Deploy'
     marathon(
         url: 'http://leader.mesos:8080',
-        filename: 'ingest/marathon.json'
+        filename: 'dev/ingest/marathon.json'
     )
 
     marathon(
         url: 'http://leader.mesos:8080',
-        filename: 'ui/marathon.json'
+        filename: 'dev/ui/marathon.json'
     )
 }
