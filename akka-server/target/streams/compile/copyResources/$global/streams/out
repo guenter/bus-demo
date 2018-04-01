@@ -1,0 +1,11 @@
+[0m[[0mdebug[0m] [0mCopy resource mappings: [0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/application.conf,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/application.conf)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/data,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/data)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/index.html,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/index.html)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/js,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/js)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/logback.xml,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/logback.xml)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/data/arrow.png,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/data/arrow.png)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/data/blub_marker.png,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/data/blub_marker.png)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/data/bus.png,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/data/bus.png)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/data/dot.png,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/data/dot.png)[0m
+[0m[[0mdebug[0m] [0m	(/Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/js/main.js,/Users/benh/workspace/BusFloatingData/akka-server/target/scala-2.11/classes/js/main.js)[0m

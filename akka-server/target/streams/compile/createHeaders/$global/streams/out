@@ -1,0 +1,1248 @@
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/application.conf[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/application.conf is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/application.conf is:[0m
+[0m[[0mdebug[0m] [0m# Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m#[0m
+[0m[[0mdebug[0m] [0m# Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m# you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m# You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m#[0m
+[0m[[0mdebug[0m] [0m#     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m#[0m
+[0m[[0mdebug[0m] [0m# Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m# distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m# See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m# limitations under the License.[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0makka {[0m
+[0m[[0mdebug[0m] [0m  loglevel                         = "INFO"[0m
+[0m[[0mdebug[0m] [0m  log-dead-letters                 = off[0m
+[0m[[0mdebug[0m] [0m  log-dead-letters-during-shutdown = off[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mservice {[0m
+[0m[[0mdebug[0m] [0m  interface = "0.0.0.0"[0m
+[0m[[0mdebug[0m] [0m  interface = ${?SERVICE_INTERFACE}[0m
+[0m[[0mdebug[0m] [0m  port = "8000"[0m
+[0m[[0mdebug[0m] [0m  port = ${?SERVICE_PORT}[0m
+[0m[[0mdebug[0m] [0m  ws_port = "8001"[0m
+[0m[[0mdebug[0m] [0m  ws_port = ${?WS_SERVICE_PORT}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mcassandra {[0m
+[0m[[0mdebug[0m] [0m  connect = "localhost:9042"[0m
+[0m[[0mdebug[0m] [0m  connect = ${?CASSANDRA_CONNECT}[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mkafka {[0m
+[0m[[0mdebug[0m] [0m  connect = "localhost:9092"[0m
+[0m[[0mdebug[0m] [0m  connect = ${?KAFKA_CONNECT}[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/resources/application.conf is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CassandraConnector.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CassandraConnector.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CassandraConnector.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.{Cluster, Host, Metadata, Session}[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConversions._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m/**[0m
+[0m[[0mdebug[0m] [0m  * Created by anierbeck on 26.05.16.[0m
+[0m[[0mdebug[0m] [0m  */[0m
+[0m[[0mdebug[0m] [0mobject CassandraConnector {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import ServiceConfig._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def connect(): Session = {[0m
+[0m[[0mdebug[0m] [0m    val cluster = Cluster.builder().addContactPoint(cassandraNodeName).withPort(Integer.valueOf(cassandraNodePort)).build()[0m
+[0m[[0mdebug[0m] [0m    val metadata:Metadata = cluster.getMetadata[0m
+[0m[[0mdebug[0m] [0m//    logger.info("Connected to cluster: {}", metadata.getClusterName)[0m
+[0m[[0mdebug[0m] [0m    println(s"Connected to cluster: ${metadata.getClusterName}")[0m
+[0m[[0mdebug[0m] [0m    metadata.getAllHosts foreach {[0m
+[0m[[0mdebug[0m] [0m      case host: Host =>[0m
+[0m[[0mdebug[0m] [0m        println(s"Datatacenter: ${host.getDatacenter}; Host: ${host.getAddress}; Rack: ${host.getRack}")[0m
+[0m[[0mdebug[0m] [0m//        logger.info("Datatacenter: {}; Host: {}; Rack: {}", host.getDatacenter, host.getAddress, host.getRack)[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    cluster.newSession()[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def close(session: Session) {[0m
+[0m[[0mdebug[0m] [0m    val cluster = session.getCluster[0m
+[0m[[0mdebug[0m] [0m    session.close()[0m
+[0m[[0mdebug[0m] [0m    cluster.close()[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CassandraConnector.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CorsSupport.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CorsSupport.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CorsSupport.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.HttpMethods._[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.HttpResponse[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.headers._[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.server.Directives._[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.server.{ Directive0, Route }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mtrait CorsSupport {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  lazy val allowedOriginHeader = `Access-Control-Allow-Origin`.*[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  private def addAccessControlHeaders: Directive0 = {[0m
+[0m[[0mdebug[0m] [0m    mapResponseHeaders { headers =>[0m
+[0m[[0mdebug[0m] [0m      allowedOriginHeader +:[0m
+[0m[[0mdebug[0m] [0m        `Access-Control-Allow-Credentials`(true) +:[0m
+[0m[[0mdebug[0m] [0m        `Access-Control-Allow-Headers`("Content-Type", "X-Requested-With", "Authorization", "Token") +:[0m
+[0m[[0mdebug[0m] [0m        headers[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  private def preflightRequestHandler: Route = options {[0m
+[0m[[0mdebug[0m] [0m    complete(HttpResponse(200).withHeaders([0m
+[0m[[0mdebug[0m] [0m      `Access-Control-Allow-Methods`(OPTIONS, POST, PUT, GET, DELETE)[0m
+[0m[[0mdebug[0m] [0m    ))[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def corsHandler(r: Route) = addAccessControlHeaders {[0m
+[0m[[0mdebug[0m] [0m    preflightRequestHandler ~ r[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/CorsSupport.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/Flows.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/Flows.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/Flows.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{ActorRef, Props}[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.ws.{Message, TextMessage}[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.FlowShape[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.scaladsl.{Flow, GraphDSL, Merge, Source}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.Vehicle[0m
+[0m[[0mdebug[0m] [0mimport GraphDSL.Implicits._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.websocket.VehiclePublisher[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m/**[0m
+[0m[[0mdebug[0m] [0m  */[0m
+[0m[[0mdebug[0m] [0mobject Flows {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def graphFlowWithStats(router: ActorRef): Flow[Message, Message, _] = {[0m
+[0m[[0mdebug[0m] [0m    Flow.fromGraph(GraphDSL.create() { implicit builder =>[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      // create an actor source[0m
+[0m[[0mdebug[0m] [0m      val source = Source.actorPublisher[String](VehiclePublisher.props(router))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      // Graph elements we'll use[0m
+[0m[[0mdebug[0m] [0m      val merge = builder.add(Merge[String](2))[0m
+[0m[[0mdebug[0m] [0m      val filter = builder.add(Flow[String].filter(_ => false))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      // get BBox from request and send it to route, return nothing ...[0m
+[0m[[0mdebug[0m] [0m      val mapMsgToString = builder.add(Flow[Message].map[String] {[0m
+[0m[[0mdebug[0m] [0m        case TextMessage.Strict(msg) => {[0m
+[0m[[0mdebug[0m] [0m          println(s"received message: $msg")[0m
+[0m[[0mdebug[0m] [0m          if (msg.contains("close")) {[0m
+[0m[[0mdebug[0m] [0m            router ! msg[0m
+[0m[[0mdebug[0m] [0m          } else {[0m
+[0m[[0mdebug[0m] [0m            val bbox = toBoundingBox(msg)[0m
+[0m[[0mdebug[0m] [0m            println(s"transformedt to bbox: $bbox")[0m
+[0m[[0mdebug[0m] [0m            router ! bbox[0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m          ""[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      })[0m
+[0m[[0mdebug[0m] [0m      //outgoing message ...[0m
+[0m[[0mdebug[0m] [0m      val mapStringToMsg = builder.add(Flow[String].map[Message](x => TextMessage.Strict(x)))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      //add source to flow[0m
+[0m[[0mdebug[0m] [0m      val vehiclesSource = builder.add(source)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      // connect the graph[0m
+[0m[[0mdebug[0m] [0m      mapMsgToString ~> filter ~> merge // this part of the merge will never provide msgs[0m
+[0m[[0mdebug[0m] [0m      vehiclesSource ~> merge ~> mapStringToMsg[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      // expose ports[0m
+[0m[[0mdebug[0m] [0m      FlowShape(mapMsgToString.in, mapStringToMsg.out)[0m
+[0m[[0mdebug[0m] [0m    })[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/Flows.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/package.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/package.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/package.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport com.google.common.util.concurrent.{FutureCallback, Futures, ListenableFuture}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{BoundingBox, LatLon}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.{ExecutionContext, Future, Promise}[0m
+[0m[[0mdebug[0m] [0mimport scala.util.{Failure, Success, Try}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage object server {[0m
+[0m[[0mdebug[0m] [0m  val Traversable = scala.collection.immutable.Traversable[0m
+[0m[[0mdebug[0m] [0m  type Traversable[+A] = scala.collection.immutable.Traversable[A][0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val Iterable = scala.collection.immutable.Iterable[0m
+[0m[[0mdebug[0m] [0m  type Iterable[+A] = scala.collection.immutable.Iterable[A][0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val Seq = scala.collection.immutable.Seq[0m
+[0m[[0mdebug[0m] [0m  type Seq[+A] = scala.collection.immutable.Seq[A][0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val IndexedSeq = scala.collection.immutable.IndexedSeq[0m
+[0m[[0mdebug[0m] [0m  type IndexedSeq[+A] = scala.collection.immutable.IndexedSeq[A][0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def futureToFutureTry[T](f: Future[T])(implicit ec: ExecutionContext): Future[Try[T]] =[0m
+[0m[[0mdebug[0m] [0m    f.map(Success(_)).recover { case exception: Exception => Failure(exception) }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit class RichListenableFuture[T](lf: ListenableFuture[T]) {[0m
+[0m[[0mdebug[0m] [0m    def toFuture: Future[T] = {[0m
+[0m[[0mdebug[0m] [0m      val p = Promise[T]()[0m
+[0m[[0mdebug[0m] [0m      Futures.addCallback(lf, new FutureCallback[T] {[0m
+[0m[[0mdebug[0m] [0m        def onFailure(t: Throwable): Unit = p failure t[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m        def onSuccess(result: T): Unit = p success result[0m
+[0m[[0mdebug[0m] [0m      })[0m
+[0m[[0mdebug[0m] [0m      p.future[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def toBoundingBox(bbox: String): BoundingBox = {[0m
+[0m[[0mdebug[0m] [0m    val bboxCoords: Array[String] = bbox.split(",")[0m
+[0m[[0mdebug[0m] [0m    val boundingBox: BoundingBox =[0m
+[0m[[0mdebug[0m] [0m      new BoundingBox(LatLon(bboxCoords(0).toFloat, bboxCoords(1).toFloat), LatLon(bboxCoords(2).toFloat, bboxCoords(3).toFloat))[0m
+[0m[[0mdebug[0m] [0m    boundingBox[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/package.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/RestService.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/RestService.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/RestService.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{ActorRef, ActorSystem}[0m
+[0m[[0mdebug[0m] [0mimport akka.event.LoggingAdapter[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.ws.{Message, TextMessage}[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.server.{Route, StandardRoute}[0m
+[0m[[0mdebug[0m] [0mimport akka.pattern.ask[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.scaladsl.{Flow, Keep, Sink, Source}[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.scaladsl._[0m
+[0m[[0mdebug[0m] [0mimport akka.util.Timeout[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.{ResultSet, Session}[0m
+[0m[[0mdebug[0m] [0mimport com.fasterxml.jackson.databind.SerializationFeature[0m
+[0m[[0mdebug[0m] [0mimport com.lambdaworks.jacks.JacksMapper[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.rest._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConverters._[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.duration._[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.{ExecutionContext, Future}[0m
+[0m[[0mdebug[0m] [0mimport scala.util.Success[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mtrait RestService extends CorsSupport {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val logger: LoggingAdapter[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val session: Session[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit val timeout = Timeout(3 seconds)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  //noinspection ScalaStyle[0m
+[0m[[0mdebug[0m] [0m  def route()(implicit system: ActorSystem, ec: ExecutionContext): Route = {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    import akka.http.scaladsl.server.Directives._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehiclesPerBBox = system.actorOf(VehiclesPerBBoxActor.props(), "vehicles-per-bbox")[0m
+[0m[[0mdebug[0m] [0m    val routeDetailsPerId = system.actorOf(RouteDetailActor.props(), "route-details-id")[0m
+[0m[[0mdebug[0m] [0m    val routeInfosPerId = system.actorOf(RouteInfoActor.props(), "route-info-id")[0m
+[0m[[0mdebug[0m] [0m    val hotspots = system.actorOf(HotSpotsActor.props(), "hotspots")[0m
+[0m[[0mdebug[0m] [0m    val hotSpotDetailsPerId = system.actorOf(HotSpotDetailsActor.props(), "hotspotDetails")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def service = pathSingleSlash {[0m
+[0m[[0mdebug[0m] [0m      corsHandler {[0m
+[0m[[0mdebug[0m] [0m        encodeResponse {[0m
+[0m[[0mdebug[0m] [0m          // serve up static content from a JAR resource[0m
+[0m[[0mdebug[0m] [0m          getFromResourceDirectory("")[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def vehiclesOnBBox = path("vehicles" / "boundingBox") {[0m
+[0m[[0mdebug[0m] [0m      corsHandler {[0m
+[0m[[0mdebug[0m] [0m        parameter('bbox.as[String], 'time.as[String] ? "5") { (bbox, time) =>[0m
+[0m[[0mdebug[0m] [0m          get {[0m
+[0m[[0mdebug[0m] [0m            marshal {[0m
+[0m[[0mdebug[0m] [0m              val boundingBox: BoundingBox = toBoundingBox(bbox)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m              val askedVehicles: Future[Future[List[Vehicle]]] = (vehiclesPerBBox ? (boundingBox, time)).mapTo[Future[List[Vehicle]]][0m
+[0m[[0mdebug[0m] [0m              askedVehicles.flatMap(future => future)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m            }[0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def routeInfo = path("routeInfo" / IntNumber) { routeId =>[0m
+[0m[[0mdebug[0m] [0m      corsHandler {[0m
+[0m[[0mdebug[0m] [0m        get {[0m
+[0m[[0mdebug[0m] [0m          marshal {[0m
+[0m[[0mdebug[0m] [0m            (routeInfosPerId ? routeId).mapTo[Future[List[RouteInfo]]].flatMap(future => future)[0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def routes = path("route" / IntNumber) { routeId =>[0m
+[0m[[0mdebug[0m] [0m      corsHandler {[0m
+[0m[[0mdebug[0m] [0m        get {[0m
+[0m[[0mdebug[0m] [0m          marshal {[0m
+[0m[[0mdebug[0m] [0m            (routeDetailsPerId ? routeId).mapTo[Future[List[RouteDetail]]].flatMap(future => future)[0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def hotSpots = path("hotspots" / "boundingBox") {[0m
+[0m[[0mdebug[0m] [0m      corsHandler {[0m
+[0m[[0mdebug[0m] [0m        parameter('bbox.as[String]) { bbox =>[0m
+[0m[[0mdebug[0m] [0m          get {[0m
+[0m[[0mdebug[0m] [0m            marshal {[0m
+[0m[[0mdebug[0m] [0m              val boundingBox: BoundingBox = toBoundingBox(bbox)[0m
+[0m[[0mdebug[0m] [0m              (hotspots ? boundingBox).mapTo[Future[List[VehicleCluster]]].flatMap(future => future)[0m
+[0m[[0mdebug[0m] [0m            }[0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def hotSpotDetails = path("hotspots" / LongNumber) { hotSpotId =>[0m
+[0m[[0mdebug[0m] [0m      corsHandler{[0m
+[0m[[0mdebug[0m] [0m        get{[0m
+[0m[[0mdebug[0m] [0m          marshal{[0m
+[0m[[0mdebug[0m] [0m            (hotSpotDetailsPerId ? hotSpotId).mapTo[List[VehicleClusterDetails]][0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehiclesPerBBoxService = Flow[Message].map {[0m
+[0m[[0mdebug[0m] [0m      case TextMessage.Strict(bbox) => {[0m
+[0m[[0mdebug[0m] [0m        val boundingBox: BoundingBox = toBoundingBox(bbox)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m        val vehicles = (vehiclesPerBBox ? boundingBox).mapTo[Future[List[Vehicle]]].flatMap(future => future)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m        JacksMapper.mapper.enable(SerializationFeature.INDENT_OUTPUT)[0m
+[0m[[0mdebug[0m] [0m        val result: Future[String] = vehicles.map(JacksMapper.writeValueAsString(_))[0m
+[0m[[0mdebug[0m] [0m        TextMessage(Source.fromFuture(result))[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m      case _ => TextMessage("Message type unsupported")[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    // Websocket endpoints[0m
+[0m[[0mdebug[0m] [0m    def webSocketVehicles =[0m
+[0m[[0mdebug[0m] [0m      path("ws" / "vehicles" / "boundingBox") {[0m
+[0m[[0mdebug[0m] [0m        parameter('bbox.as[String]) { bbox =>[0m
+[0m[[0mdebug[0m] [0m          get {[0m
+[0m[[0mdebug[0m] [0m            logger.info("WebSocket request ...")[0m
+[0m[[0mdebug[0m] [0m            handleWebSocketMessages(vehiclesPerBBoxService)[0m
+[0m[[0mdebug[0m] [0m          }[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    // Frontend[0m
+[0m[[0mdebug[0m] [0m    def index = (path("") | pathPrefix("index.htm")) {[0m
+[0m[[0mdebug[0m] [0m      getFromResource("index.html")[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    def img = (pathPrefix("data") & path(Segment)) { resource => getFromResource(s"data/$resource") }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    def js = (pathPrefix("js") & path(Segment)) { resource => getFromResource(s"js/${resource}") }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    get {[0m
+[0m[[0mdebug[0m] [0m      index ~ img ~ js[0m
+[0m[[0mdebug[0m] [0m    } ~ service ~ vehiclesOnBBox ~ routeInfo ~ routes ~ webSocketVehicles ~ hotSpots ~ hotSpotDetails[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def marshal(m: => Future[Any])(implicit ec: ExecutionContext): StandardRoute =[0m
+[0m[[0mdebug[0m] [0m    StandardRoute(ctx => {[0m
+[0m[[0mdebug[0m] [0m      ctx.complete({[0m
+[0m[[0mdebug[0m] [0m        JacksMapper.mapper.enable(SerializationFeature.INDENT_OUTPUT)[0m
+[0m[[0mdebug[0m] [0m        m.map(JacksMapper.writeValueAsString(_))[0m
+[0m[[0mdebug[0m] [0m      })[0m
+[0m[[0mdebug[0m] [0m    })[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/RestService.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceApp.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceApp.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceApp.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{ActorRef, ActorSystem, Props}[0m
+[0m[[0mdebug[0m] [0mimport akka.event.Logging[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.Http[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.HttpMethods._[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.ws.UpgradeToWebSocket[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.ActorMaterializer[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.websocket.{RouterActor, TiledVehiclesFromKafkaActor}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.Await[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.duration.Duration[0m
+[0m[[0mdebug[0m] [0mimport scala.util.{Failure, Success}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject ServiceApp extends RestService {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import ServiceConfig._[0m
+[0m[[0mdebug[0m] [0m  import system.dispatcher[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit val system = ActorSystem("service-api-http")[0m
+[0m[[0mdebug[0m] [0m  implicit val mat = ActorMaterializer()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override val logger = Logging(system, getClass.getName)[0m
+[0m[[0mdebug[0m] [0m  override val session = CassandraConnector.connect()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def main(args: Array[String]): Unit = {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val router: ActorRef = system.actorOf(Props[RouterActor], "router")[0m
+[0m[[0mdebug[0m] [0m    val vmactor: ActorRef = system.actorOf(TiledVehiclesFromKafkaActor.props(router), "Kafka-Consumer")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val requestHandler: HttpRequest => HttpResponse = {[0m
+[0m[[0mdebug[0m] [0m      case req@HttpRequest(GET, Uri.Path("/ws/vehicles"), _, _, _) =>[0m
+[0m[[0mdebug[0m] [0m        req.header[UpgradeToWebSocket] match {[0m
+[0m[[0mdebug[0m] [0m          case Some(upgrade) => upgrade.handleMessages(Flows.graphFlowWithStats(router))[0m
+[0m[[0mdebug[0m] [0m          case None => HttpResponse(400, entity = "Not a valid websocket request!")[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      case _: HttpRequest => HttpResponse(404, entity = "Unknown resource!")[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    Http()[0m
+[0m[[0mdebug[0m] [0m      .bindAndHandle(route(), serviceInterface, servicePort)[0m
+[0m[[0mdebug[0m] [0m      .onComplete {[0m
+[0m[[0mdebug[0m] [0m        case Success(_) => logger.info(s"Successfully bound to $serviceInterface:$servicePort")[0m
+[0m[[0mdebug[0m] [0m        case Failure(e) => logger.error(s"Failed !!!! ${e.getMessage}")[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    Http()[0m
+[0m[[0mdebug[0m] [0m      .bindAndHandleSync(requestHandler, serviceInterface, 8001)[0m
+[0m[[0mdebug[0m] [0m      .onComplete {[0m
+[0m[[0mdebug[0m] [0m        case Success(_) => logger.info(s"Successfully started Server to $serviceInterface:8001")[0m
+[0m[[0mdebug[0m] [0m        case Failure(e) => logger.error(s"Failed !!!! ${e.getMessage}")[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    Await.ready(system.whenTerminated, Duration.Inf)[0m
+[0m[[0mdebug[0m] [0m    CassandraConnector.close(session)[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceApp.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceConfig.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceConfig.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceConfig.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport com.typesafe.config.ConfigFactory[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject ServiceConfig {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val config = ConfigFactory.load();[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val serviceInterface = config.getString("service.interface")[0m
+[0m[[0mdebug[0m] [0m  val servicePort = config.getInt("service.port")[0m
+[0m[[0mdebug[0m] [0m  val cassandraNodeName = config.getString("cassandra.connect").split(":").head[0m
+[0m[[0mdebug[0m] [0m  val cassandraNodePort = config.getString("cassandra.connect").split(":").reverse.head[0m
+[0m[[0mdebug[0m] [0m  val kafkaConnect = config.getString("kafka.connect")[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/ServiceConfig.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/CassandraQuery.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/CassandraQuery.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/CassandraQuery.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{Actor, ActorLogging}[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.Session[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.CassandraConnector[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mtrait CassandraQuery extends Actor with ActorLogging {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val session: Session = CassandraConnector.connect()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def postStop(): Unit = {[0m
+[0m[[0mdebug[0m] [0m    CassandraConnector.close(session)[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/CassandraQuery.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotDetailsActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotDetailsActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotDetailsActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.rest[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.Props[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.ResultSet[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.VehicleClusterDetails[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.CassandraQuery[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConversions._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject HotSpotDetailsActor {[0m
+[0m[[0mdebug[0m] [0m  def props():Props = Props(new HotSpotDetailsActor())[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass HotSpotDetailsActor extends CassandraQuery {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val selectHotSpotDetails = session.prepare("SELECT * FROM streaming.vehicleclusterdetails WHERE id = ?")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def receive: Receive = {[0m
+[0m[[0mdebug[0m] [0m    case hotSpotId:Long => {[0m
+[0m[[0mdebug[0m] [0m      sender() ! retrieveHotSpotDetails(hotSpotId)[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    case _ => log.error("Wrong request")[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def retrieveHotSpotDetails(hotSpotId: Long): List[VehicleClusterDetails] = {[0m
+[0m[[0mdebug[0m] [0m    val futureResult:ResultSet = session.execute(selectHotSpotDetails.bind(hotSpotId.asInstanceOf[java.lang.Long]))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val hotSpotDetailsFuture:List[VehicleClusterDetails] = futureResult.map{ row =>[0m
+[0m[[0mdebug[0m] [0m          VehicleClusterDetails(row.getLong("id"), row.getInt("pos_id"), row.getLong("time_stamp"), row.getDouble("latitude"), row.getDouble("longitude"))[0m
+[0m[[0mdebug[0m] [0m    }.toList[0m
+[0m[[0mdebug[0m] [0m    hotSpotDetailsFuture[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotDetailsActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotsActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotsActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotsActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.rest[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.Props[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.ActorMaterializer[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.ResultSet[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{BoundingBox, VehicleCluster}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.CassandraQuery[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.tiler.TileCalc[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConverters._[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.{ExecutionContext, Future}[0m
+[0m[[0mdebug[0m] [0mimport scala.util.Success[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject HotSpotsActor {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def props():Props = Props(new HotSpotsActor())[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass HotSpotsActor extends CassandraQuery{[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit val executionContext = context.dispatcher[0m
+[0m[[0mdebug[0m] [0m  implicit val actorMaterializer = ActorMaterializer()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val selectHotSpotsByBoundingBox = session.prepare("SELECT * FROM streaming.vehiclecluster_by_tileid WHERE tile_id = ?")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def receive: Receive = {[0m
+[0m[[0mdebug[0m] [0m    case boundingBox:BoundingBox => {[0m
+[0m[[0mdebug[0m] [0m      log.info("received a BBox query")[0m
+[0m[[0mdebug[0m] [0m      sender() ! getHotSpotsByBBox(boundingBox)[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    case _ => log.error("Wrong request")[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def getHotSpotsByBBox(boundingBox: BoundingBox)(implicit executionContext: ExecutionContext): Future[List[VehicleCluster]] = {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    log.info(s"Querrying with bounding Box: ${boundingBox}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tileIds: Set[String] = TileCalc.convertBBoxToTileIDs(boundingBox)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    log.info(s"extracted ${tileIds.size} tileIds")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futureResults: Set[Future[ResultSet]] = tileIds.map(tileId => session.executeAsync(selectHotSpotsByBoundingBox.bind(tileId)).toFuture)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futures: Set[Future[List[VehicleCluster]]] =[0m
+[0m[[0mdebug[0m] [0m      futureResults.map([0m
+[0m[[0mdebug[0m] [0m        resultFuture => resultFuture.map{ resultSet =>[0m
+[0m[[0mdebug[0m] [0m            resultSet.iterator().asScala.map{ row =>[0m
+[0m[[0mdebug[0m] [0m//            log.info("found vehicleCluster in db")[0m
+[0m[[0mdebug[0m] [0m            val vehicle = VehicleCluster([0m
+[0m[[0mdebug[0m] [0m              row.getInt("id"),[0m
+[0m[[0mdebug[0m] [0m              row.getLong("time_stamp"),[0m
+[0m[[0mdebug[0m] [0m              row.getDouble("latitude"),[0m
+[0m[[0mdebug[0m] [0m              row.getDouble("longitude"),[0m
+[0m[[0mdebug[0m] [0m              row.getInt("amount"))[0m
+[0m[[0mdebug[0m] [0m//            log.info(s"vehicleCluster: ${vehicle}")[0m
+[0m[[0mdebug[0m] [0m            vehicle[0m
+[0m[[0mdebug[0m] [0m          }.toList})[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futureVehicleClusters: Future[List[VehicleCluster]] =[0m
+[0m[[0mdebug[0m] [0m      Future.sequence([0m
+[0m[[0mdebug[0m] [0m        futures.map([0m
+[0m[[0mdebug[0m] [0m          futureToFutureTry(_))).map(_.collect {[0m
+[0m[[0mdebug[0m] [0m        case Success(x) => x[0m
+[0m[[0mdebug[0m] [0m      }).map(set => set.toList.flatten)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    futureVehicleClusters[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/HotSpotsActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteDetailActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteDetailActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteDetailActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.rest[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.Props[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.ActorMaterializer[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.ResultSet[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.RouteDetail[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.CassandraQuery[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConverters._[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.{ExecutionContext, Future}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject RouteDetailActor {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def props():Props = Props(new RouteDetailActor())[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass RouteDetailActor extends CassandraQuery {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit val executionContext = context.dispatcher[0m
+[0m[[0mdebug[0m] [0m  implicit val actorMaterializer = ActorMaterializer()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val selectRoute = session.prepare("SELECT * FROM streaming.routes WHERE route_id = ?")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def receive: Receive = {[0m
+[0m[[0mdebug[0m] [0m    case routeId: Int => sender() ! retrieveRouteDetail(routeId)[0m
+[0m[[0mdebug[0m] [0m    case _ => log.error("Wrong request")[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  private def retrieveRouteDetail(routeId: Int)(implicit executionContext: ExecutionContext): Future[List[RouteDetail]] = {[0m
+[0m[[0mdebug[0m] [0m    log.info(s"route detaisl for route id: ${routeId}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futureResult: Future[ResultSet] = session.executeAsync(selectRoute.bind(routeId.toString)).toFuture[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futures: Future[List[RouteDetail]] = futureResult.map(resultSet => resultSet.iterator().asScala.map(row => {[0m
+[0m[[0mdebug[0m] [0m      RouteDetail(row.getString("route_id"), row.getString("id"), row.getDouble("longitude"), row.getDouble("latitude"), row.getString("display_name"))[0m
+[0m[[0mdebug[0m] [0m    }).toList)[0m
+[0m[[0mdebug[0m] [0m    futures[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteDetailActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteInfoActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteInfoActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteInfoActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.rest[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.Props[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.ActorMaterializer[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.ResultSet[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.RouteInfo[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.CassandraQuery[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConverters._[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.{ExecutionContext, Future}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject RouteInfoActor {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def props():Props = Props(new RouteInfoActor())[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass RouteInfoActor extends CassandraQuery {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit val executionContext = context.dispatcher[0m
+[0m[[0mdebug[0m] [0m  implicit val actorMaterializer = ActorMaterializer()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val selectRouteInfo = session.prepare("SELECT * FROM streaming.routeinfos WHERE ID = ?")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def receive: Receive = {[0m
+[0m[[0mdebug[0m] [0m    case routeId:Int => sender() ! retrieveRouteInfo(routeId)[0m
+[0m[[0mdebug[0m] [0m    case _ => log.error("Wrong request")[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  private def retrieveRouteInfo(routeId: Int)(implicit executionContext: ExecutionContext): Future[List[RouteInfo]] = {[0m
+[0m[[0mdebug[0m] [0m    log.info(s"routeinfo requested for route id ${routeId}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futureResult: Future[ResultSet] = session.executeAsync(selectRouteInfo.bind(routeId.toString)).toFuture[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futures: Future[List[RouteInfo]] = futureResult.map(resultSet => resultSet.iterator().asScala.map(row => {[0m
+[0m[[0mdebug[0m] [0m      RouteInfo(row.getString("id"), row.getString("display_name"))[0m
+[0m[[0mdebug[0m] [0m    }).toList)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    futures[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/RouteInfoActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/VehiclesPerBBoxActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/VehiclesPerBBoxActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/VehiclesPerBBoxActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.rest[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.Props[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.ActorMaterializer[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.ResultSet[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{BoundingBox, Vehicle}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.server.actors.CassandraQuery[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.tiler.TileCalc[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.collection.JavaConverters._[0m
+[0m[[0mdebug[0m] [0mimport scala.concurrent.{ExecutionContext, Future}[0m
+[0m[[0mdebug[0m] [0mimport scala.util.Success[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject VehiclesPerBBoxActor {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def props():Props = Props(new VehiclesPerBBoxActor())[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass VehiclesPerBBoxActor extends CassandraQuery {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  implicit val executionContext = context.dispatcher[0m
+[0m[[0mdebug[0m] [0m  implicit val actorMaterializer = ActorMaterializer()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val selectTrajectoriesByBBox = session.prepare("SELECT * FROM streaming.vehicles_by_tileid WHERE tile_id = ? AND time_id IN ? AND time > ? ")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def receive(): Receive = {[0m
+[0m[[0mdebug[0m] [0m    case (boundingBox: BoundingBox,time: String) => {[0m
+[0m[[0mdebug[0m] [0m      log.info("received a BBox query")[0m
+[0m[[0mdebug[0m] [0m      val eventualVehicles = getVehiclesByBBox(boundingBox, time)[0m
+[0m[[0mdebug[0m] [0m      log.info(s"X: ${eventualVehicles}")[0m
+[0m[[0mdebug[0m] [0m      sender() ! eventualVehicles[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    case _ => log.error("Wrong request")[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def getVehiclesByBBox(boundingBox: BoundingBox, time: String)(implicit executionContext: ExecutionContext): Future[List[Vehicle]] = {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    log.info(s"Querrying with bounding Box: ${boundingBox}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tileIds: Set[String] = TileCalc.convertBBoxToTileIDs(boundingBox)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    log.info(s"extracted ${tileIds.size} tileIds")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val timing = time.toInt[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val timeStamp = new java.util.Date(System.currentTimeMillis() - (timing * 60 * 1000))[0m
+[0m[[0mdebug[0m] [0m    val timeIdminusOne = TileCalc.transformTime(timeStamp).getTime[0m
+[0m[[0mdebug[0m] [0m    val timeId = TileCalc.transformTime(new java.util.Date(System.currentTimeMillis())).getTime[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val timeList = new java.util.ArrayList(List(timeIdminusOne, timeId).asJavaCollection)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    log.info(s"timeId: ${timeIdminusOne},${timeId}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futureResults: Set[Future[ResultSet]] = tileIds.map(tileId => session.executeAsync(selectTrajectoriesByBBox.bind(tileId, timeList, timeStamp)).toFuture)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futures: Set[Future[List[Vehicle]]] =[0m
+[0m[[0mdebug[0m] [0m      futureResults.map([0m
+[0m[[0mdebug[0m] [0m        resultFuture => resultFuture.map([0m
+[0m[[0mdebug[0m] [0m          resultSet => resultSet.iterator().asScala.map(row => {[0m
+[0m[[0mdebug[0m] [0m            Vehicle([0m
+[0m[[0mdebug[0m] [0m              row.getString("id"),[0m
+[0m[[0mdebug[0m] [0m              Some(row.getTimestamp("time")),[0m
+[0m[[0mdebug[0m] [0m              row.getDouble("latitude"),[0m
+[0m[[0mdebug[0m] [0m              row.getDouble("longitude"),[0m
+[0m[[0mdebug[0m] [0m              row.getInt("heading"),[0m
+[0m[[0mdebug[0m] [0m              Some(row.getString("route_id")))[0m
+[0m[[0mdebug[0m] [0m          }).toList))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val futureVehicles: Future[List[Vehicle]] =[0m
+[0m[[0mdebug[0m] [0m      Future.sequence([0m
+[0m[[0mdebug[0m] [0m        futures.map([0m
+[0m[[0mdebug[0m] [0m          futureToFutureTry(_))).map(_.collect {[0m
+[0m[[0mdebug[0m] [0m        case Success(x) => x[0m
+[0m[[0mdebug[0m] [0m      }).map(set => set.toList.flatten)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    futureVehicles[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/rest/VehiclesPerBBoxActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/RouterActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/RouterActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/RouterActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.websocket[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{Actor, ActorLogging}[0m
+[0m[[0mdebug[0m] [0mimport akka.routing.{AddRoutee, RemoveRoutee, Routee}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m/**[0m
+[0m[[0mdebug[0m] [0m  * Simple router where we can add and remove routee. This actor is not[0m
+[0m[[0mdebug[0m] [0m  * immutable.[0m
+[0m[[0mdebug[0m] [0m  */[0m
+[0m[[0mdebug[0m] [0mclass RouterActor extends Actor with ActorLogging {[0m
+[0m[[0mdebug[0m] [0m  var routees = Set[Routee]()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def receive: Receive = {[0m
+[0m[[0mdebug[0m] [0m    case ar: AddRoutee => {[0m
+[0m[[0mdebug[0m] [0m      log.info(s"add routee ${ar.routee}")[0m
+[0m[[0mdebug[0m] [0m      routees = routees + ar.routee[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    case rr: RemoveRoutee => {[0m
+[0m[[0mdebug[0m] [0m      log.info(s"remove routee ${rr.routee}")[0m
+[0m[[0mdebug[0m] [0m      routees = routees - rr.routee[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    case msg:Any => {[0m
+[0m[[0mdebug[0m] [0m      routees.foreach(_.send(msg, sender))[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/RouterActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/TiledVehiclesFromKafkaActor.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/TiledVehiclesFromKafkaActor.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/TiledVehiclesFromKafkaActor.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.websocket[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{Actor, ActorLogging, ActorRef, Props}[0m
+[0m[[0mdebug[0m] [0mimport akka.kafka.{ConsumerSettings, Subscriptions}[0m
+[0m[[0mdebug[0m] [0mimport akka.kafka.scaladsl.Consumer[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.ActorMaterializer[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.serializer.TiledVehicleFstDeserializer[0m
+[0m[[0mdebug[0m] [0mimport org.apache.kafka.common.serialization.ByteArrayDeserializer[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m/**[0m
+[0m[[0mdebug[0m] [0m  * Just a simple router, which collects some VM stats and sends them to the provided[0m
+[0m[[0mdebug[0m] [0m  * actorRef each interval.[0m
+[0m[[0mdebug[0m] [0m  */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject TiledVehiclesFromKafkaActor {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def props(router:ActorRef):Props = Props(new TiledVehiclesFromKafkaActor(router))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass TiledVehiclesFromKafkaActor(router: ActorRef) extends Actor with ActorLogging {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import de.nierbeck.floating.data.server.ServiceConfig._[0m
+[0m[[0mdebug[0m] [0m  implicit val materializer = ActorMaterializer()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  //Kafka[0m
+[0m[[0mdebug[0m] [0m  val consumerSettings = ConsumerSettings(context.system, new ByteArrayDeserializer, new TiledVehicleFstDeserializer)[0m
+[0m[[0mdebug[0m] [0m    .withBootstrapServers(kafkaConnect)[0m
+[0m[[0mdebug[0m] [0m    .withGroupId("group1")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val source = Consumer.atMostOnceSource(consumerSettings.withClientId("Akka-Client"), Subscriptions.topics("tiledVehicles"))[0m
+[0m[[0mdebug[0m] [0m  source.map(message => message.value).runForeach(vehicle => router ! vehicle)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def receive: Actor.Receive = {[0m
+[0m[[0mdebug[0m] [0m    case _ => // just ignore any messages[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/TiledVehiclesFromKafkaActor.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/VehiclePublisher.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/VehiclePublisher.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/VehiclePublisher.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server.actors.websocket[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.actor.{ActorLogging, ActorRef, Props, Stash}[0m
+[0m[[0mdebug[0m] [0mimport akka.routing.{ActorRefRoutee, AddRoutee, RemoveRoutee}[0m
+[0m[[0mdebug[0m] [0mimport akka.stream.actor.ActorPublisher[0m
+[0m[[0mdebug[0m] [0mimport com.fasterxml.jackson.databind.SerializationFeature[0m
+[0m[[0mdebug[0m] [0mimport com.lambdaworks.jacks.JacksMapper[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{BoundingBox, TiledVehicle, Vehicle}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.tiler.TileCalc[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport scala.annotation.tailrec[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject VehiclePublisher {[0m
+[0m[[0mdebug[0m] [0m  def props(router:ActorRef): Props =  Props(new VehiclePublisher(router))[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass VehiclePublisher(router: ActorRef) extends ActorPublisher[String] with ActorLogging with Stash {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  case class QueueUpdated()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import akka.stream.actor.ActorPublisherMessage._[0m
+[0m[[0mdebug[0m] [0m  import context._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import scala.collection.mutable[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val MaxBufferSize = 50[0m
+[0m[[0mdebug[0m] [0m  val queue = mutable.Queue[Vehicle]()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  var queueUpdated = false[0m
+[0m[[0mdebug[0m] [0m  var tileIds: Set[String] = Set()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  // on startup, register with routee[0m
+[0m[[0mdebug[0m] [0m  override def preStart() {[0m
+[0m[[0mdebug[0m] [0m    log.info("Publisher preStart: adding self to routee")[0m
+[0m[[0mdebug[0m] [0m    router ! AddRoutee(ActorRefRoutee(self))[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  // cleanly remove this actor from the router. To[0m
+[0m[[0mdebug[0m] [0m  // make sure our custom router only keeps track of[0m
+[0m[[0mdebug[0m] [0m  // alive actors.[0m
+[0m[[0mdebug[0m] [0m  override def postStop(): Unit = {[0m
+[0m[[0mdebug[0m] [0m    log.info("Publisher postStop: removing self from routee")[0m
+[0m[[0mdebug[0m] [0m    router ! RemoveRoutee(ActorRefRoutee(self))[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def receive: Receive = {[0m
+[0m[[0mdebug[0m] [0m    case bbox: BoundingBox => {[0m
+[0m[[0mdebug[0m] [0m      log.info("received BBox changing behavior")[0m
+[0m[[0mdebug[0m] [0m      tileIds = TileCalc.convertBBoxToTileIDs(bbox)[0m
+[0m[[0mdebug[0m] [0m      log.info(s"${tileIds.size} tiles are requested")[0m
+[0m[[0mdebug[0m] [0m      unstashAll()[0m
+[0m[[0mdebug[0m] [0m      become(streamAndQueueVehicles, discardOld = false)[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m    case msg => stash()[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def streamAndQueueVehicles: Receive = {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    // receive new stats, add them to the queue, and quickly[0m
+[0m[[0mdebug[0m] [0m    // exit.[0m
+[0m[[0mdebug[0m] [0m    case tiledVehicles: TiledVehicle=>[0m
+[0m[[0mdebug[0m] [0m      // remove the oldest one from the queue and add a new one[0m
+[0m[[0mdebug[0m] [0m      if (queue.size == MaxBufferSize) queue.dequeue()[0m
+[0m[[0mdebug[0m] [0m      if (tileIds.contains(tiledVehicles.tileId)) {[0m
+[0m[[0mdebug[0m] [0m        queue += Vehicle(tiledVehicles.id,tiledVehicles.time, tiledVehicles.latitude, tiledVehicles.longitude, tiledVehicles.heading, tiledVehicles.route_id, tiledVehicles.run_id, tiledVehicles.seconds_since_report)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m        if (!queueUpdated) {[0m
+[0m[[0mdebug[0m] [0m          queueUpdated = true[0m
+[0m[[0mdebug[0m] [0m          self ! QueueUpdated[0m
+[0m[[0mdebug[0m] [0m        }[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    // we receive this message if there are new items in the[0m
+[0m[[0mdebug[0m] [0m    // queue. If we have a demand for messages send the requested[0m
+[0m[[0mdebug[0m] [0m    // demand.[0m
+[0m[[0mdebug[0m] [0m    case QueueUpdated => deliver()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    // the connected subscriber request n messages, we don't need[0m
+[0m[[0mdebug[0m] [0m    // to explicitely check the amount, we use totalDemand propery for this[0m
+[0m[[0mdebug[0m] [0m    case Request(amount) =>[0m
+[0m[[0mdebug[0m] [0m      deliver()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    // subscriber stops, so we stop ourselves.[0m
+[0m[[0mdebug[0m] [0m    case Cancel =>[0m
+[0m[[0mdebug[0m] [0m      context.stop(self)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    case stringMsg:String => {[0m
+[0m[[0mdebug[0m] [0m      if ("close" == stringMsg) {[0m
+[0m[[0mdebug[0m] [0m        log.info("closing websocket connection")[0m
+[0m[[0mdebug[0m] [0m        become(receive, discardOld = true)[0m
+[0m[[0mdebug[0m] [0m        router ! Cancel[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  /**[0m
+[0m[[0mdebug[0m] [0m    * Deliver the message to the subscriber. In the case of websockets over TCP, note[0m
+[0m[[0mdebug[0m] [0m    * that even if we have a slow consumer, we won't notice that immediately. First the[0m
+[0m[[0mdebug[0m] [0m    * buffers will fill up before we get feedback.[0m
+[0m[[0mdebug[0m] [0m    */[0m
+[0m[[0mdebug[0m] [0m  @tailrec final def deliver(): Unit = {[0m
+[0m[[0mdebug[0m] [0m    if (totalDemand == 0) {[0m
+[0m[[0mdebug[0m] [0m      log.info(s"No more demand for: $this")[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    if (queue.size == 0 && totalDemand != 0) {[0m
+[0m[[0mdebug[0m] [0m      // we can response to queueupdated msgs again, since[0m
+[0m[[0mdebug[0m] [0m      // we can't do anything until our queue contains stuff again.[0m
+[0m[[0mdebug[0m] [0m      queueUpdated = false[0m
+[0m[[0mdebug[0m] [0m    } else if (totalDemand > 0 && queue.size > 0) {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      val vehicle = queue.dequeue()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      JacksMapper.mapper.enable(SerializationFeature.INDENT_OUTPUT)[0m
+[0m[[0mdebug[0m] [0m      val vehcileAsString = JacksMapper.writeValueAsString(vehicle)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      onNext(vehcileAsString)[0m
+[0m[[0mdebug[0m] [0m      deliver()[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/main/scala/de/nierbeck/floating/data/server/actors/websocket/VehiclePublisher.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m

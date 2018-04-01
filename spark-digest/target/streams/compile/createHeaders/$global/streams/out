@@ -1,0 +1,337 @@
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/CalcClusterSparkApp.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/CalcClusterSparkApp.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/CalcClusterSparkApp.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.stream.spark[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport java.util.{Date, Properties}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport breeze.linalg.DenseMatrix[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.spark.connector._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.tiler.TileCalc[0m
+[0m[[0mdebug[0m] [0mimport nak.cluster.{DBSCAN, GDBSCAN, Kmeans}[0m
+[0m[[0mdebug[0m] [0mimport org.apache.spark.rdd.RDD[0m
+[0m[[0mdebug[0m] [0mimport org.apache.spark.{SparkConf, SparkContext}[0m
+[0m[[0mdebug[0m] [0mimport org.joda.time.DateTime[0m
+[0m[[0mdebug[0m] [0mimport org.joda.time.format.{DateTimeFormat, DateTimeFormatter}[0m
+[0m[[0mdebug[0m] [0mimport org.slf4j.{Logger, LoggerFactory}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m//noinspection ScalaStyle[0m
+[0m[[0mdebug[0m] [0mobject CalcClusterSparkApp {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  val log:Logger = LoggerFactory.getLogger(getClass.getName)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import scala.language.implicitConversions[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  /**[0m
+[0m[[0mdebug[0m] [0m    * Executable main method of CalcClusterSparkApp.[0m
+[0m[[0mdebug[0m] [0m    *[0m
+[0m[[0mdebug[0m] [0m    * @param args - args(0): cassandra-host:port, arg(1): start_time[0m
+[0m[[0mdebug[0m] [0m    *             for example: "2016-06-05 18:00:00"[0m
+[0m[[0mdebug[0m] [0m    */[0m
+[0m[[0mdebug[0m] [0m  def main(args: Array[String]) {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    assert(args.size >= 1, "Please provide the following params: cassandrahost:cassandraport start_time[optional]")[0m
+[0m[[0mdebug[0m] [0m    val cassandraHost = args(0).split(":").head[0m
+[0m[[0mdebug[0m] [0m    val cassandraPort = args(0).split(":").reverse.head[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val fmt:DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    var startTime = DateTime.now().toString(fmt)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    if (args.length > 1)[0m
+[0m[[0mdebug[0m] [0m      startTime = args(1)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val sparkConf = new SparkConf()[0m
+[0m[[0mdebug[0m] [0m      .setAppName(getClass.getName)[0m
+[0m[[0mdebug[0m] [0m      .set("spark.cassandra.connection.host", cassandraHost )[0m
+[0m[[0mdebug[0m] [0m      .set("spark.cassandra.connection.port", cassandraPort )[0m
+[0m[[0mdebug[0m] [0m      .set("spark.cassandra.connection.keep_alive_ms", "30000")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val sc = new SparkContext(sparkConf)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val timeStartLimit:DateTime = fmt.parseDateTime(startTime)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val timeStopLimit = timeStartLimit.plusHours(1)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehiclesRdd:RDD[Vehicle] = sc.cassandraTable[Vehicle]("streaming", "vehicles").where("time > ? and time < ?", fmt.print(timeStartLimit), fmt.print(timeStopLimit))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehiclesPos:Array[Double] = vehiclesRdd[0m
+[0m[[0mdebug[0m] [0m      .flatMap(vehicle => Seq[(String, (Double,Double))]((s"${vehicle.id}_${vehicle.latitude}_${vehicle.longitude}",(vehicle.latitude, vehicle.longitude))))[0m
+[0m[[0mdebug[0m] [0m      .reduceByKey((x,y) => x)[0m
+[0m[[0mdebug[0m] [0m      .map(x => List(x._2._1, x._2._2)).flatMap(identity)[0m
+[0m[[0mdebug[0m] [0m      .collect()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val seqOfVehiclePos:Seq[Array[Double]] = Seq(vehiclesPos)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    log.info(s"got ${vehiclesPos.length} positions, first: ${vehiclesPos.head},${vehiclesPos.tail.head}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehiclePosRdd: RDD[Array[Double]] = sc.parallelize(seqOfVehiclePos)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val denseMatrixRdd: RDD[DenseMatrix[Double]] = vehiclePosRdd.map(vehiclePosArray => DenseMatrix.create[Double](vehiclePosArray.length / 2, 2, vehiclePosArray))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val clusterRdd: RDD[GDBSCAN.Cluster[Double]] = denseMatrixRdd.map(dm => dbscan(dm)).flatMap(identity)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val clusterRddFiltered = clusterRdd/*.filter(cluster => cluster.points.size > 4)*/.cache()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    clusterRddFiltered.map{ cluster =>[0m
+[0m[[0mdebug[0m] [0m      val timeStamp:Long = new Date().getTime[0m
+[0m[[0mdebug[0m] [0m      val id:Long = cluster.id[0m
+[0m[[0mdebug[0m] [0m      val points = cluster.points.map(_.value.toArray)[0m
+[0m[[0mdebug[0m] [0m      points.zipWithIndex.map{tuple =>[0m
+[0m[[0mdebug[0m] [0m        val points = correctLatLon(tuple._1(0), tuple._1(1))[0m
+[0m[[0mdebug[0m] [0m        val index = tuple._2[0m
+[0m[[0mdebug[0m] [0m        VehicleClusterDetails(id, index, timeStamp, points._1, points._2)[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m    }.flatMap(identity)[0m
+[0m[[0mdebug[0m] [0m      .saveToCassandra("streaming", "vehicleclusterdetails")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val clusterdByKey = clusterRddFiltered.map(cluster => (cluster.id, cluster))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val coordPointList:RDD[(Long,(Double,Double))] = clusterRddFiltered.map{ cluster =>[0m
+[0m[[0mdebug[0m] [0m      val points: Seq[Array[Double]] = cluster.points.map(_.value.toArray)[0m
+[0m[[0mdebug[0m] [0m      log.info(s"cluster: ${cluster}")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      val coords: List[Double] = points.toList.flatMap(x => x.toList)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      val coordTuples = convertListToTuple(coords, List.empty)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      (cluster.id, coordTuples.map(coordTuple => (points.size, convertToPoint(coordTuple))))[0m
+[0m[[0mdebug[0m] [0m    }.map{pointListTuple =>[0m
+[0m[[0mdebug[0m] [0m      (pointListTuple._1, pointListTuple._2.foldLeft((0, (0.0,0.0,0.0))) {[0m
+[0m[[0mdebug[0m] [0m        case ((count,(accA,accB,accC)), (z,(a,b,c))) => ( z,  (accA + a, accB + b, accC + c))[0m
+[0m[[0mdebug[0m] [0m      })[0m
+[0m[[0mdebug[0m] [0m    }.map{ case ((id, (count, (a, b, c)))) =>[0m
+[0m[[0mdebug[0m] [0m      (id, (a/count, b/count, c/count))[0m
+[0m[[0mdebug[0m] [0m    }.map{ case ((id,(a,b,c))) =>[0m
+[0m[[0mdebug[0m] [0m      import Math._[0m
+[0m[[0mdebug[0m] [0m      val lon = atan2(b,a)[0m
+[0m[[0mdebug[0m] [0m      val hyp = sqrt(a * a + b * b)[0m
+[0m[[0mdebug[0m] [0m      val lat = atan2(c, hyp)[0m
+[0m[[0mdebug[0m] [0m      (id, (lat * 180 / PI, lon * 180 / PI))[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val clustered:RDD[VehicleCluster] = clusterdByKey.join(coordPointList).map{ case ( (clusterId, (cluster, (centerLat, centerLon))) )  =>[0m
+[0m[[0mdebug[0m] [0m      VehicleCluster(clusterId.toInt, new Date().getTime, centerLat, centerLon, cluster.points.size)[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    clustered.saveToCassandra("streaming", "vehiclecluster")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    clustered.map(vehiclCluster => TiledVehicleCluster(TileCalc.convertLatLongToQuadKey(vehiclCluster.latitude, vehiclCluster.longitude), vehiclCluster.id, vehiclCluster.timeStamp, vehiclCluster.latitude, vehiclCluster.longitude, vehiclCluster.amount)).saveToCassandra("streaming", "vehiclecluster_by_tileid")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def convertToPoint(coordTuple:(Double,Double)):(Double,Double,Double) = {[0m
+[0m[[0mdebug[0m] [0m    import Math._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val lat = coordTuple._1 * PI / 180[0m
+[0m[[0mdebug[0m] [0m    val lon = coordTuple._2 * PI / 180[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val a = cos(lat) * cos(lon)[0m
+[0m[[0mdebug[0m] [0m    val b = cos(lat) * sin(lon)[0m
+[0m[[0mdebug[0m] [0m    val c = sin(lat)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    (a,b,c)[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def dbscan(v : breeze.linalg.DenseMatrix[Double]):Seq[GDBSCAN.Cluster[Double]] = {[0m
+[0m[[0mdebug[0m] [0m    log.info(s"calculating cluster for denseMatrix: ${v.data.head}, ${v.data.tail.head}")[0m
+[0m[[0mdebug[0m] [0m    val gdbscan = new GDBSCAN([0m
+[0m[[0mdebug[0m] [0m      DBSCAN.getNeighbours(epsilon = 0.0005, distance = Kmeans.euclideanDistance),[0m
+[0m[[0mdebug[0m] [0m      DBSCAN.isCorePoint(minPoints = 3)[0m
+[0m[[0mdebug[0m] [0m    )[0m
+[0m[[0mdebug[0m] [0m    val clusters = gdbscan.cluster(v)[0m
+[0m[[0mdebug[0m] [0m    clusters[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def convertListToTuple(incomingList: List[Double], tupleList: List[(Double, Double)]): List[(Double, Double)] = {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    if (incomingList.size >= 2) {[0m
+[0m[[0mdebug[0m] [0m      val newTuples: List[(Double, Double)] = tupleList :+ correctLatLon(incomingList.head, incomingList.tail.head)[0m
+[0m[[0mdebug[0m] [0m      if (incomingList.size > 2)[0m
+[0m[[0mdebug[0m] [0m        convertListToTuple(incomingList.tail.tail, newTuples)[0m
+[0m[[0mdebug[0m] [0m      else[0m
+[0m[[0mdebug[0m] [0m        newTuples[0m
+[0m[[0mdebug[0m] [0m    } else {[0m
+[0m[[0mdebug[0m] [0m      tupleList[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  //this only works for LosAngeles[0m
+[0m[[0mdebug[0m] [0m  private def correctLatLon(lat: Double, lon: Double) = {[0m
+[0m[[0mdebug[0m] [0m    val MinLatitude = -85.05112878[0m
+[0m[[0mdebug[0m] [0m    val MaxLatitude = 85.05112878[0m
+[0m[[0mdebug[0m] [0m    val MinLongitude = -180[0m
+[0m[[0mdebug[0m] [0m    val MaxLongitude = 180[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    if (lat < MinLatitude || lat > MaxLatitude) {[0m
+[0m[[0mdebug[0m] [0m      //obviously the cluster did switch the coordinates[0m
+[0m[[0mdebug[0m] [0m      (lon, lat)[0m
+[0m[[0mdebug[0m] [0m    } else {[0m
+[0m[[0mdebug[0m] [0m      (lat, lon)[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/CalcClusterSparkApp.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/KafkaToCassandraSparkApp.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/KafkaToCassandraSparkApp.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/KafkaToCassandraSparkApp.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.stream.spark[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport java.util.Properties[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.spark.connector.streaming._[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{TiledVehicle, Vehicle}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.serializer.{TiledVehicleFstSerializer, VehicleFstDeserializer}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.tiler.TileCalc[0m
+[0m[[0mdebug[0m] [0mimport kafka.serializer.StringDecoder[0m
+[0m[[0mdebug[0m] [0mimport org.apache.kafka.clients.consumer.ConsumerRecord[0m
+[0m[[0mdebug[0m] [0mimport org.apache.kafka.clients.producer.{KafkaProducer, Producer, ProducerRecord}[0m
+[0m[[0mdebug[0m] [0mimport org.apache.kafka.common.serialization.StringDeserializer[0m
+[0m[[0mdebug[0m] [0mimport org.apache.spark.SparkConf[0m
+[0m[[0mdebug[0m] [0mimport org.apache.spark.streaming.dstream.InputDStream[0m
+[0m[[0mdebug[0m] [0mimport org.apache.spark.streaming.kafka010._[0m
+[0m[[0mdebug[0m] [0mimport org.apache.spark.streaming.{Seconds, StreamingContext}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject KafkaToCassandraSparkApp {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import scala.language.implicitConversions[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  /**[0m
+[0m[[0mdebug[0m] [0m    * Executable main method of KafkaToCassandraSparkApp.[0m
+[0m[[0mdebug[0m] [0m    *[0m
+[0m[[0mdebug[0m] [0m    * @param args - args(0): topicName, args(1): cassandra-host:port, arg(2): kafka-host:port[0m
+[0m[[0mdebug[0m] [0m    */[0m
+[0m[[0mdebug[0m] [0m  def main(args: Array[String]) {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    assert(args.size == 3, "Please provide the following params: topicname cassandrahost:cassandraport kafkahost:kafkaport")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val kafkaConnect = args(2)[0m
+[0m[[0mdebug[0m] [0m    val cassandraHost = args(1).split(":").head[0m
+[0m[[0mdebug[0m] [0m    val cassandraPort = args(1).split(":").reverse.head[0m
+[0m[[0mdebug[0m] [0m    val consumerTopic = args(0)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val sparkConf = new SparkConf()[0m
+[0m[[0mdebug[0m] [0m      .setAppName(getClass.getName)[0m
+[0m[[0mdebug[0m] [0m      .set("spark.cassandra.connection.host", cassandraHost )[0m
+[0m[[0mdebug[0m] [0m      .set("spark.cassandra.connection.port", cassandraPort )[0m
+[0m[[0mdebug[0m] [0m      .set("spark.cassandra.connection.keep_alive_ms", "30000")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val producerConf = new Properties()[0m
+[0m[[0mdebug[0m] [0m    producerConf.put("value.serializer", "de.nierbeck.floating.data.serializer.TiledVehicleFstSerializer")[0m
+[0m[[0mdebug[0m] [0m    producerConf.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")[0m
+[0m[[0mdebug[0m] [0m    producerConf.put("bootstrap.servers", kafkaConnect)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val kafkaParams = Map[String, String]([0m
+[0m[[0mdebug[0m] [0m      "bootstrap.servers" -> kafkaConnect,[0m
+[0m[[0mdebug[0m] [0m      "group.id" -> "group1",[0m
+[0m[[0mdebug[0m] [0m      "key.deserializer" -> classOf[StringDeserializer].getName,[0m
+[0m[[0mdebug[0m] [0m      "value.deserializer" -> classOf[VehicleFstDeserializer].getName,[0m
+[0m[[0mdebug[0m] [0m      "session.timeout.ms" -> s"${1 * 60 * 1000}",[0m
+[0m[[0mdebug[0m] [0m      "request.timeout.ms" -> s"${2 * 60 * 1000}",[0m
+[0m[[0mdebug[0m] [0m      "auto.offset.reset" -> "latest",[0m
+[0m[[0mdebug[0m] [0m      "enable.auto.commit" -> "false"[0m
+[0m[[0mdebug[0m] [0m    )[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    //noinspection ScalaStyle[0m
+[0m[[0mdebug[0m] [0m    val ssc = new StreamingContext(sparkConf, Seconds(10))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val kafkaStream = KafkaUtils.createDirectStream[String, Vehicle]([0m
+[0m[[0mdebug[0m] [0m      ssc,[0m
+[0m[[0mdebug[0m] [0m      LocationStrategies.PreferBrokers,[0m
+[0m[[0mdebug[0m] [0m      ConsumerStrategies.Subscribe[String, Vehicle](Set(consumerTopic),kafkaParams)[0m
+[0m[[0mdebug[0m] [0m    )[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehicle = kafkaStream.map { consumerRecord => consumerRecord.value }.cache()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    vehicle.saveToCassandra("streaming", "vehicles")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    vehicle.filter(x => x.time.isDefined)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tiledVehicle = vehicle.map(vehicle => TiledVehicle([0m
+[0m[[0mdebug[0m] [0m      TileCalc.convertLatLongToQuadKey(vehicle.latitude, vehicle.longitude),[0m
+[0m[[0mdebug[0m] [0m      TileCalc.transformTime(vehicle.time.get),[0m
+[0m[[0mdebug[0m] [0m      vehicle.id,[0m
+[0m[[0mdebug[0m] [0m      vehicle.time,[0m
+[0m[[0mdebug[0m] [0m      vehicle.latitude,[0m
+[0m[[0mdebug[0m] [0m      vehicle.longitude,[0m
+[0m[[0mdebug[0m] [0m      vehicle.heading,[0m
+[0m[[0mdebug[0m] [0m      vehicle.route_id,[0m
+[0m[[0mdebug[0m] [0m      vehicle.run_id,[0m
+[0m[[0mdebug[0m] [0m      vehicle.seconds_since_report[0m
+[0m[[0mdebug[0m] [0m    ))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    tiledVehicle.cache()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    tiledVehicle.saveToCassandra("streaming", "vehicles_by_tileid")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    tiledVehicle.foreachRDD(rdd => rdd.foreachPartition(f = tiledVehicles => {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      val producer: Producer[String, TiledVehicle] = new KafkaProducer[String, TiledVehicle](producerConf)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      tiledVehicles.foreach { tiledVehicle =>[0m
+[0m[[0mdebug[0m] [0m        val message = new ProducerRecord[String, TiledVehicle]("tiledVehicles", tiledVehicle)[0m
+[0m[[0mdebug[0m] [0m        producer.send(message)[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      producer.close()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    }))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    commitOffsets(kafkaStream)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    ssc.start()[0m
+[0m[[0mdebug[0m] [0m    ssc.awaitTermination()[0m
+[0m[[0mdebug[0m] [0m    ssc.stop()[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  /**[0m
+[0m[[0mdebug[0m] [0m    * Commits the processed kafka offsets[0m
+[0m[[0mdebug[0m] [0m    * @param stream The DStream created by KafkaUtils#createDirectStream without any transformation![0m
+[0m[[0mdebug[0m] [0m    */[0m
+[0m[[0mdebug[0m] [0m  def commitOffsets(stream: InputDStream[ConsumerRecord[String, Vehicle]]): Unit = {[0m
+[0m[[0mdebug[0m] [0m    stream.foreachRDD(rdd => {[0m
+[0m[[0mdebug[0m] [0m      val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges[0m
+[0m[[0mdebug[0m] [0m      stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)[0m
+[0m[[0mdebug[0m] [0m    })[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/spark-digest/src/main/scala/de/nierbeck/floating/data/stream/spark/KafkaToCassandraSparkApp.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m

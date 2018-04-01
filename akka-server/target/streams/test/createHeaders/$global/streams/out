@@ -1,0 +1,42 @@
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/akka-server/src/test/scala-2.11/de/nierbeck/floating/data/server/TestRestService.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/akka-server/src/test/scala-2.11/de/nierbeck/floating/data/server/TestRestService.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/akka-server/src/test/scala-2.11/de/nierbeck/floating/data/server/TestRestService.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.server[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport akka.event.{ Logging, LoggingAdapter }[0m
+[0m[[0mdebug[0m] [0mimport akka.http.scaladsl.testkit.ScalatestRouteTest[0m
+[0m[[0mdebug[0m] [0mimport org.scalatest.{ FlatSpec, Matchers }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass TestRestService extends FlatSpec with ScalatestRouteTest with Matchers with RestService {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override val session = CassandraConnector.connect()[0m
+[0m[[0mdebug[0m] [0m  override val logger = Logging(system, getClass.getName)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  "Endpoing" should "respond to requests" ignore {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    Get("vehicles/boundingBox?bbox=34.94656360293794,-120.20947906250001,33.295920016396764,-116.25440093750001") ~> route() ~> check {[0m
+[0m[[0mdebug[0m] [0m      status shouldEqual 200[0m
+[0m[[0mdebug[0m] [0m      //      assertResult()[0m
+[0m[[0mdebug[0m] [0m    }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    CassandraConnector.close(session)[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/akka-server/src/test/scala-2.11/de/nierbeck/floating/data/server/TestRestService.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m

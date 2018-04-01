@@ -1,0 +1,221 @@
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/KafkaToCassandraFlinkApp.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/KafkaToCassandraFlinkApp.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/KafkaToCassandraFlinkApp.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.stream.flink[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport java.util.{Optional, Properties}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.Cluster[0m
+[0m[[0mdebug[0m] [0mimport com.datastax.driver.core.Cluster.Builder[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{TiledVehicle, Vehicle}[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.tiler.TileCalc[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.api.common.typeinfo.TypeInformation[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironment}[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.connectors.cassandra.{CassandraSink, ClusterBuilder}[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.connectors.kafka.partitioner.FixedPartitioner[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.connectors.kafka.{FlinkKafkaConsumer010, FlinkKafkaProducer010}[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.util.serialization.{KeyedSerializationSchemaWrapper, SerializationSchema}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject KafkaToCassandraFlinkApp {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  def main(args: Array[String]) {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    assert(args.size == 3, "Please provide the following params: topicname cassandrahost:cassandraport kafkahost:kafkaport")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val kafkaConnect = args(2)[0m
+[0m[[0mdebug[0m] [0m    val cassandraHost = args(1).split(":").head[0m
+[0m[[0mdebug[0m] [0m    val cassandraPort = args(1).split(":").reverse.head[0m
+[0m[[0mdebug[0m] [0m    val consumerTopic = args(0)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    import org.apache.flink.streaming.api.scala._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    implicit val typeInfo = createTypeInformation[Vehicle][0m
+[0m[[0mdebug[0m] [0m    implicit val typeInfoPojo = createTypeInformation[VehiclePojo][0m
+[0m[[0mdebug[0m] [0m    implicit val typeInfoTiledPojo = createTypeInformation[TiledVehiclePojo][0m
+[0m[[0mdebug[0m] [0m    implicit val typeInfoTiled = createTypeInformation[TiledVehicle][0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val env = StreamExecutionEnvironment.getExecutionEnvironment[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val properties:Properties = new Properties()[0m
+[0m[[0mdebug[0m] [0m    properties.setProperty("bootstrap.servers", kafkaConnect)[0m
+[0m[[0mdebug[0m] [0m    properties.setProperty("group.id", "flink")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val kafkaConsumer = new FlinkKafkaConsumer010[Vehicle](consumerTopic, new VehicleFstDeserializationSchema(), properties)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val vehicleStream = env.addSource(kafkaConsumer)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val pojoStream: DataStream[VehiclePojo] = vehicleStream.map(scalaVehicle => {[0m
+[0m[[0mdebug[0m] [0m      val pojo = new VehiclePojo()[0m
+[0m[[0mdebug[0m] [0m      pojo.setId(scalaVehicle.id)[0m
+[0m[[0mdebug[0m] [0m      pojo.setHeading(scalaVehicle.heading)[0m
+[0m[[0mdebug[0m] [0m      pojo.setLatitude(scalaVehicle.latitude)[0m
+[0m[[0mdebug[0m] [0m      pojo.setLongitude(scalaVehicle.longitude)[0m
+[0m[[0mdebug[0m] [0m      if (scalaVehicle.route_id.isDefined) {[0m
+[0m[[0mdebug[0m] [0m        pojo.setRoute_id(scalaVehicle.route_id.get)[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m      pojo.setRun_id(scalaVehicle.run_id)[0m
+[0m[[0mdebug[0m] [0m      pojo.setSeconds_since_report(scalaVehicle.seconds_since_report)[0m
+[0m[[0mdebug[0m] [0m      if (scalaVehicle.time.isDefined) {[0m
+[0m[[0mdebug[0m] [0m        pojo.setTime(scalaVehicle.time.get)[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m      pojo[0m
+[0m[[0mdebug[0m] [0m    })[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    CassandraSink.addSink(pojoStream.javaStream)[0m
+[0m[[0mdebug[0m] [0m      .setClusterBuilder(new ClusterBuilder {[0m
+[0m[[0mdebug[0m] [0m        override def buildCluster(builder: Cluster.Builder) = builder.addContactPoint(cassandraHost).build()[0m
+[0m[[0mdebug[0m] [0m      }).build()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tiledVehicleStream:DataStream[TiledVehicle] = vehicleStream.filter(x => x.time.isDefined).map(vehicle => TiledVehicle([0m
+[0m[[0mdebug[0m] [0m      TileCalc.convertLatLongToQuadKey(vehicle.latitude, vehicle.longitude),[0m
+[0m[[0mdebug[0m] [0m      TileCalc.transformTime(vehicle.time.get),[0m
+[0m[[0mdebug[0m] [0m      vehicle.id,[0m
+[0m[[0mdebug[0m] [0m      vehicle.time,[0m
+[0m[[0mdebug[0m] [0m      vehicle.latitude,[0m
+[0m[[0mdebug[0m] [0m      vehicle.longitude,[0m
+[0m[[0mdebug[0m] [0m      vehicle.heading,[0m
+[0m[[0mdebug[0m] [0m      vehicle.route_id,[0m
+[0m[[0mdebug[0m] [0m      vehicle.run_id,[0m
+[0m[[0mdebug[0m] [0m      vehicle.seconds_since_report[0m
+[0m[[0mdebug[0m] [0m    ))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tiledVehiclePojoStream:DataStream[TiledVehiclePojo] = tiledVehicleStream.map(tiledVehicle => {[0m
+[0m[[0mdebug[0m] [0m      val pojo = new TiledVehiclePojo()[0m
+[0m[[0mdebug[0m] [0m      pojo.setTileId(tiledVehicle.tileId)[0m
+[0m[[0mdebug[0m] [0m      pojo.setTimeId(tiledVehicle.timeID.getTime)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m      pojo.setId(tiledVehicle.id)[0m
+[0m[[0mdebug[0m] [0m      pojo.setHeading(tiledVehicle.heading)[0m
+[0m[[0mdebug[0m] [0m      pojo.setLatitude(tiledVehicle.latitude)[0m
+[0m[[0mdebug[0m] [0m      pojo.setLongitude(tiledVehicle.longitude)[0m
+[0m[[0mdebug[0m] [0m      if (tiledVehicle.route_id.isDefined) {[0m
+[0m[[0mdebug[0m] [0m        pojo.setRoute_id(tiledVehicle.route_id.get)[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m      pojo.setRun_id(tiledVehicle.run_id)[0m
+[0m[[0mdebug[0m] [0m      pojo.setSeconds_since_report(tiledVehicle.seconds_since_report)[0m
+[0m[[0mdebug[0m] [0m      if (tiledVehicle.time.isDefined) {[0m
+[0m[[0mdebug[0m] [0m        pojo.setTime(tiledVehicle.time.get)[0m
+[0m[[0mdebug[0m] [0m      }[0m
+[0m[[0mdebug[0m] [0m      pojo[0m
+[0m[[0mdebug[0m] [0m    })[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    CassandraSink.addSink(tiledVehiclePojoStream.javaStream)[0m
+[0m[[0mdebug[0m] [0m      .setClusterBuilder(new ClusterBuilder {[0m
+[0m[[0mdebug[0m] [0m        override def buildCluster(builder: Cluster.Builder) = builder.addContactPoint(cassandraHost).build()[0m
+[0m[[0mdebug[0m] [0m      }).build()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val producerConfig = FlinkKafkaProducer010.writeToKafkaWithTimestamps([0m
+[0m[[0mdebug[0m] [0m      tiledVehicleStream.javaStream,          // input stream[0m
+[0m[[0mdebug[0m] [0m      "tiledVehicles",                        // target topic[0m
+[0m[[0mdebug[0m] [0m      new TiledVehicleSerializationSchema,    // serialization schema[0m
+[0m[[0mdebug[0m] [0m      properties                              // custom configuration for KafkaProducer (including broker list)[0m
+[0m[[0mdebug[0m] [0m    )[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    // the following is necessary for at-least-once delivery guarantee[0m
+[0m[[0mdebug[0m] [0m    producerConfig.setLogFailuresOnly(false)   // "false" by default[0m
+[0m[[0mdebug[0m] [0m    producerConfig.setFlushOnCheckpoint(true)  // "false" by default[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    env.execute("KafkaToCassandraFlink")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/KafkaToCassandraFlinkApp.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/TiledVehicleSerializationSchema.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/TiledVehicleSerializationSchema.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/TiledVehicleSerializationSchema.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.stream.flink[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.TiledVehicle[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.util.serialization.SerializationSchema[0m
+[0m[[0mdebug[0m] [0mimport org.nustaq.serialization.FSTConfiguration[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject TiledVehicleSerializationSchema {[0m
+[0m[[0mdebug[0m] [0m  val fst = FSTConfiguration.createDefaultConfiguration()[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass TiledVehicleSerializationSchema extends SerializationSchema[TiledVehicle] {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import TiledVehicleSerializationSchema._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def serialize(element: TiledVehicle): Array[Byte] = {[0m
+[0m[[0mdebug[0m] [0m    fst.asByteArray(element)[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/TiledVehicleSerializationSchema.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/VehicleFstDeserializationSchema.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/VehicleFstDeserializationSchema.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/VehicleFstDeserializationSchema.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.stream.flink[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.Vehicle[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.api.common.typeinfo.TypeInformation[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.util.serialization.AbstractDeserializationSchema[0m
+[0m[[0mdebug[0m] [0mimport org.nustaq.serialization.FSTConfiguration[0m
+[0m[[0mdebug[0m] [0mimport org.apache.flink.streaming.api._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mobject VehicleFstDeserializationSchema {[0m
+[0m[[0mdebug[0m] [0m  val fst = FSTConfiguration.createDefaultConfiguration()[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass VehicleFstDeserializationSchema extends AbstractDeserializationSchema[Vehicle] {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  import VehicleFstDeserializationSchema._[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  override def deserialize(message: Array[Byte]): Vehicle = {[0m
+[0m[[0mdebug[0m] [0m    fst.asObject(message).asInstanceOf[Vehicle][0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/flink-digest/src/main/scala/de/nierbeck/floating/data/stream/flink/VehicleFstDeserializationSchema.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m

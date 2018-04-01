@@ -1,0 +1,113 @@
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/commons/src/test/scala-2.11/serializer/TestKryoSerialization.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/commons/src/test/scala-2.11/serializer/TestKryoSerialization.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/commons/src/test/scala-2.11/serializer/TestKryoSerialization.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.serializer[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport java.io._[0m
+[0m[[0mdebug[0m] [0mimport java.util.Date[0m
+[0m[[0mdebug[0m] [0mimport java.nio.file.{ Files, Paths }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.Vehicle[0m
+[0m[[0mdebug[0m] [0mimport org.scalatest.{ FlatSpec, Matchers }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mclass TestKryoSerialization extends FlatSpec with Matchers {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  "Vehicle" should "be serialized via Kryo and back deserialized again" ignore {[0m
+[0m[[0mdebug[0m] [0m    val vehicle = Vehicle("1", Some(new Date()), 45.0, 45.0, 90, Some("id"))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val serializer = new VehicleKryoSerializer[0m
+[0m[[0mdebug[0m] [0m    val deserializer = new VehicleKryoDeserializer[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val serialized = serializer.serialize("test", vehicle)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tmpFile = File.createTempFile("kryotest-", ".tmp")[0m
+[0m[[0mdebug[0m] [0m    tmpFile.deleteOnExit()[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val bos = new BufferedOutputStream(new FileOutputStream(tmpFile))[0m
+[0m[[0mdebug[0m] [0m    Stream.continually(bos.write(serialized))[0m
+[0m[[0mdebug[0m] [0m    bos.close() // You may end up with 0 bytes file if not calling close.[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val byteArray = Files.readAllBytes(Paths.get(tmpFile.getPath))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val deserializedVehicle = deserializer.deserialize("test", byteArray)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    deserializedVehicle should equal(vehicle)[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/commons/src/test/scala-2.11/serializer/TestKryoSerialization.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m
+[0m[[0mdebug[0m] [0mAbout to create/update header for /Users/benh/workspace/BusFloatingData/commons/src/test/scala/de/nierbeck/floating/data/tiler/TestTileCalc.scala[0m
+[0m[[0mdebug[0m] [0mFirst line of /Users/benh/workspace/BusFloatingData/commons/src/test/scala/de/nierbeck/floating/data/tiler/TestTileCalc.scala is:[0m
+[0m[[0mdebug[0m] [0mText of /Users/benh/workspace/BusFloatingData/commons/src/test/scala/de/nierbeck/floating/data/tiler/TestTileCalc.scala is:[0m
+[0m[[0mdebug[0m] [0m/*[0m
+[0m[[0mdebug[0m] [0m * Copyright 2016 Achim Nierbeck[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Licensed under the Apache License, Version 2.0 (the "License");[0m
+[0m[[0mdebug[0m] [0m * you may not use this file except in compliance with the License.[0m
+[0m[[0mdebug[0m] [0m * You may obtain a copy of the License at[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m *     http://www.apache.org/licenses/LICENSE-2.0[0m
+[0m[[0mdebug[0m] [0m *[0m
+[0m[[0mdebug[0m] [0m * Unless required by applicable law or agreed to in writing, software[0m
+[0m[[0mdebug[0m] [0m * distributed under the License is distributed on an "AS IS" BASIS,[0m
+[0m[[0mdebug[0m] [0m * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.[0m
+[0m[[0mdebug[0m] [0m * See the License for the specific language governing permissions and[0m
+[0m[[0mdebug[0m] [0m * limitations under the License.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mpackage de.nierbeck.floating.data.tiler[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0mimport de.nierbeck.floating.data.domain.{ BoundingBox, LatLon }[0m
+[0m[[0mdebug[0m] [0mimport org.scalatest.{ FlatSpec, Matchers }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m/**[0m
+[0m[[0mdebug[0m] [0m * Created by anierbeck on 17.05.16.[0m
+[0m[[0mdebug[0m] [0m */[0m
+[0m[[0mdebug[0m] [0mclass TestTileCalc extends FlatSpec with Matchers {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  "TileCalc" should "create a tile for a given coordinate" in {[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val coordinate1 = (34.12527, -118.2319)[0m
+[0m[[0mdebug[0m] [0m    val coordinate2 = (34.94656360293794, -120.20947906250001)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    //0230123111303100[0m
+[0m[[0mdebug[0m] [0m    val tileId1 = TileCalc.convertLatLongToQuadKey(coordinate1._1, coordinate1._2)[0m
+[0m[[0mdebug[0m] [0m    val tileId2 = TileCalc.convertLatLongToQuadKey(coordinate2._1, coordinate2._2)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    tileId1 should equal("023012311130310")[0m
+[0m[[0mdebug[0m] [0m    tileId2 should equal("023012121222012")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  it should "produce multiple tiles for a boundingBox" in {[0m
+[0m[[0mdebug[0m] [0m    //bbox: 34.94656360293794,-120.20947906250001,33.295920016396764,-116.25440093750001[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val bbox = BoundingBox(LatLon(34.94656360293794f, -120.20947906250001f), LatLon(33.295920016396764f, -116.25440093750001f))[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    val tiles: Set[String] = TileCalc.convertBBoxToTileIDs(bbox)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    //    println(tiles)[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m    tiles should contain("023012311130310")[0m
+[0m[[0mdebug[0m] [0m[0m
+[0m[[0mdebug[0m] [0m  }[0m
+[0m[[0mdebug[0m] [0m}[0m
+[0m[[0mdebug[0m] [0mModified text of /Users/benh/workspace/BusFloatingData/commons/src/test/scala/de/nierbeck/floating/data/tiler/TestTileCalc.scala is:[0m
+[0m[[0mdebug[0m] [0mNone[0m

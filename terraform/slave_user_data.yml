@@ -1,0 +1,216 @@
+#cloud-config
+"coreos":
+  "units":
+  - "command": |-
+      start
+    "content": |
+      [Unit]
+      Description=AWS Setup: Formats the /var/lib ephemeral drive
+      Before=var-lib.mount dbus.service
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=/bin/bash -c "(blkid -t TYPE=ext4 | grep xvdb) || (/usr/sbin/mkfs.ext4 -F /dev/xvdb)"
+    "name": |-
+      format-var-lib-ephemeral.service
+  - "command": |-
+      start
+    "content": |
+      [Unit]
+      Description=AWS Setup: Mount /var/lib
+      Before=dbus.service
+      [Mount]
+      What=/dev/xvdb
+      Where=/var/lib
+      Type=ext4
+    "name": |-
+      var-lib.mount
+  - "command": |-
+      stop
+    "mask": !!bool |-
+      true
+    "name": |-
+      etcd.service
+  - "command": |-
+      stop
+    "mask": !!bool |-
+      true
+    "name": |-
+      update-engine.service
+  - "command": |-
+      stop
+    "mask": !!bool |-
+      true
+    "name": |-
+      locksmithd.service
+  - "command": |-
+      stop
+    "name": |-
+      systemd-resolved.service
+  - "command": |-
+      restart
+    "name": |-
+      systemd-journald.service
+  - "command": |-
+      restart
+    "name": |-
+      docker.service
+  - "command": |-
+      start
+    "content": |
+      [Unit]
+      Before=dcos.target
+      [Service]
+      Type=oneshot
+      StandardOutput=journal+console
+      StandardError=journal+console
+      ExecStartPre=/usr/bin/mkdir -p /etc/profile.d
+      ExecStart=/usr/bin/ln -sf /opt/mesosphere/bin/add_dcos_path.sh /etc/profile.d/dcos.sh
+    "name": |-
+      dcos-link-env.service
+  - "content": |
+      [Unit]
+      Description=Pkgpanda: Download DC/OS to this host.
+      After=network-online.target
+      Wants=network-online.target
+      ConditionPathExists=!/opt/mesosphere/
+      [Service]
+      Type=oneshot
+      StandardOutput=journal+console
+      StandardError=journal+console
+      ExecStartPre=/usr/bin/curl --keepalive-time 2 -fLsSv --retry 20 -Y 100000 -y 60 -o /tmp/bootstrap.tar.xz ${dcos_base_download_url}/bootstrap/${bootstrap_id}.bootstrap.tar.xz
+      ExecStartPre=/usr/bin/mkdir -p /opt/mesosphere
+      ExecStart=/usr/bin/tar -axf /tmp/bootstrap.tar.xz -C /opt/mesosphere
+      ExecStartPost=-/usr/bin/rm -f /tmp/bootstrap.tar.xz
+    "name": |-
+      dcos-download.service
+  - "command": |-
+      start
+    "content": |
+      [Unit]
+      Description=Pkgpanda: Specialize DC/OS for this host.
+      Requires=dcos-download.service
+      After=dcos-download.service
+      [Service]
+      Type=oneshot
+      StandardOutput=journal+console
+      StandardError=journal+console
+      EnvironmentFile=/opt/mesosphere/environment
+      ExecStart=/opt/mesosphere/bin/pkgpanda setup --no-block-systemd
+      [Install]
+      WantedBy=multi-user.target
+    "enable": !!bool |-
+      true
+    "name": |-
+      dcos-setup.service
+    "no_block": !!bool |-
+      true
+  - "command": |-
+      start
+    "content": |-
+      [Unit]
+      Description=AWS Setup: Signal CloudFormation Success
+      ConditionPathExists=!/var/lib/dcos-cfn-signal
+      [Service]
+      Type=simple
+      Restart=on-failure
+      StartLimitInterval=0
+      RestartSec=15s
+      EnvironmentFile=/opt/mesosphere/environment
+      EnvironmentFile=/opt/mesosphere/etc/cfn_signal_metadata
+      Environment="AWS_CFN_SIGNAL_THIS_RESOURCE=SlaveServerGroup"
+      ExecStartPre=/bin/ping -c1 leader.mesos
+      ExecStartPre=/opt/mesosphere/bin/cfn-signal
+      ExecStart=/usr/bin/touch /var/lib/dcos-cfn-signal
+    "name": |-
+      dcos-cfn-signal.service
+    "no_block": !!bool |-
+      true
+  "update":
+    "reboot-strategy": |-
+      off
+"write_files":
+- "content": |
+    ${dcos_base_download_url}
+  "owner": |-
+    root
+  "path": |-
+    /etc/mesosphere/setup-flags/repository-url
+  "permissions": |-
+    0644
+- "content": |
+  ${cluster_packages}
+  "owner": |-
+    root
+  "path": |-
+    /etc/mesosphere/setup-flags/cluster-packages.json
+  "permissions": |-
+    0644
+- "content": |
+    [Journal]
+    MaxLevelConsole=warning
+    RateLimitInterval=1s
+    RateLimitBurst=20000
+  "owner": |-
+    root
+  "path": |-
+    /etc/systemd/journald.conf.d/dcos.conf
+  "permissions": |-
+    0644
+- "content": |
+    libstorage:
+      integration:
+        volume:
+          operations:
+            unmount:
+              ignoreusedcount: true
+      server:
+        tasks:
+          logTimeout: 5m
+    rexray:
+      loglevel: info
+      service: ebs
+  "path": |-
+    /etc/rexray/config.yml
+  "permissions": |-
+    0644
+- "content": |
+    "bound_values":
+      "adminrouter_auth_enabled": |-
+        false
+      "agent_role": |-
+        ${slave_role}
+      "aws_region": |-
+        ${aws_region}
+      "aws_stack_id": |-
+        arn:aws:cloudformation:${aws_region}:097247269408:stack/${stack_name}/e16b6850-42a1-11e7-aec4-50a68a770c82
+      "aws_stack_name": |-
+        ${stack_name}
+      "cluster_name": |-
+        ${stack_name}
+      "exhibitor_address": |-
+        ${internal_master_lb_dns_name}
+      "master_external_loadbalancer": |-
+        ${internal_master_lb_dns_name}
+      "master_role": |-
+        ${master_role}
+      "oauth_enabled": |-
+        false
+      "s3_bucket": |-
+        ${exhibitor_s3_bucket}
+      "s3_prefix": |-
+        ${stack_name}
+    "late_bound_package_id": |-
+      dcos-provider-d32e054e113b14d97841dd13b974a222976a8d62-aws--setup
+  "owner": |-
+    root
+  "path": |-
+    /etc/mesosphere/setup-flags/late-config.yaml
+  "permissions": |-
+    0644
+- "content": ""
+  "path": |-
+    /etc/mesosphere/roles/slave
+- "content": ""
+  "path": |-
+    /etc/mesosphere/roles/aws

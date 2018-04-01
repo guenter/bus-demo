@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
+	<info organisation="de.nierbeck.floating.data"
+		module="flink-digest_2.11"
+		revision="0.2.2-SNAPSHOT"
+		status="integration"
+		publication="20170605211814"
+	>
+		<license name="Apache-2.0" url="https://opensource.org/licenses/Apache-2.0" />
+		<description homepage="https://github.com/ANierbeck/BusFloatingData">
+		flink-digest
+		</description>
+	</info>
+	<configurations>
+		<conf name="universal" visibility="public" description=""/>
+		<conf name="universal-docs" visibility="public" description=""/>
+		<conf name="universal-src" visibility="public" description=""/>
+		<conf name="windows" visibility="public" description=""/>
+		<conf name="docker" visibility="public" description=""/>
+		<conf name="compile" visibility="public" description=""/>
+		<conf name="runtime" visibility="public" description="" extends="compile"/>
+		<conf name="test" visibility="public" description="" extends="runtime"/>
+		<conf name="provided" visibility="public" description=""/>
+		<conf name="optional" visibility="public" description=""/>
+		<conf name="linux" visibility="public" description=""/>
+		<conf name="rpm" visibility="public" description="" extends="linux"/>
+		<conf name="debian" visibility="public" description="" extends="linux"/>
+		<conf name="compile-internal" visibility="private" description="" extends="compile,optional,provided"/>
+		<conf name="runtime-internal" visibility="private" description="" extends="runtime,optional"/>
+		<conf name="test-internal" visibility="private" description="" extends="test,optional,provided"/>
+		<conf name="plugin" visibility="private" description=""/>
+		<conf name="sources" visibility="public" description=""/>
+		<conf name="docs" visibility="public" description=""/>
+		<conf name="pom" visibility="public" description=""/>
+		<conf name="scala-tool" visibility="private" description=""/>
+	</configurations>
+	<publications>
+		<artifact name="flink-digest_2.11" type="jar" ext="jar" conf="universal,universal-docs,universal-src,windows,docker,compile,runtime,test,provided,optional,linux,rpm,debian,sources,docs,pom" e:classifier="assembly"/>
+		<artifact name="flink-digest_2.11" type="pom" ext="pom" conf="pom"/>
+		<artifact name="flink-digest_2.11" type="jar" ext="jar" conf="compile"/>
+		<artifact name="flink-digest_2.11" type="src" ext="jar" conf="sources" e:classifier="sources"/>
+		<artifact name="flink-digest_2.11" type="doc" ext="jar" conf="docs" e:classifier="javadoc"/>
+	</publications>
+	<dependencies>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.11.8" conf="scala-tool->default,optional(default)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.11.8" conf="scala-tool->default,optional(default);compile->default(compile)"/>
+		<dependency org="de.nierbeck.floating.data" name="commons_2.11" rev="0.2.2-SNAPSHOT" conf="compile->default(compile)"/>
+		<dependency org="org.scoverage" name="scalac-scoverage-runtime_2.11" rev="1.1.1" transitive="false" conf="provided->default(compile)"/>
+		<dependency org="org.scoverage" name="scalac-scoverage-plugin_2.11" rev="1.1.1" transitive="false" conf="provided->default(compile)"/>
+		<dependency org="org.scalatest" name="scalatest_2.11" rev="2.2.6" conf="test->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.github.jnr" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.ow2.asm" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="io.netty" module="*" name="*" type="netty-all" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="joda-time" name="joda-time" rev="2.9.3" conf="compile->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.github.jnr" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.ow2.asm" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="io.netty" module="*" name="*" type="netty-all" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="com.twitter" name="chill-akka_2.11" rev="0.8.0" conf="compile->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.github.jnr" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.ow2.asm" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="io.netty" module="*" name="*" type="netty-all" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="de.ruedigermoeller" name="fst" rev="2.45" conf="compile->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.github.jnr" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.ow2.asm" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="io.netty" module="*" name="*" type="netty-all" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.18" conf="compile->default(compile)"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-1.2-api" rev="2.8.2" conf="compile->default(compile)"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-slf4j-impl" rev="2.8.2" conf="compile->default(compile)"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.8.2" conf="compile->default(compile)"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.8.2" conf="compile->default(compile)"/>
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.18" conf="compile->default(compile)"/>
+		<dependency org="org.slf4j" name="jul-to-slf4j" rev="1.7.18" conf="compile->default(compile)"/>
+		<dependency org="org.apache.kafka" name="kafka_2.11" rev="0.10.0.1" conf="compile->default(compile)">
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.kafka" name="kafka-clients" rev="0.10.0.1" conf="compile->default(compile)">
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-core" rev="1.2.0" conf="provided->default(compile)">
+			<exclude org="com.esotericsoftware.kryo" module="kryo" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-scala_2.11" rev="1.2.0" conf="provided->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-streaming-java_2.11" rev="1.2.0" conf="provided->default(compile)">
+			<exclude org="com.esotericsoftware.kryo" module="kryo" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-streaming-scala_2.11" rev="1.2.0" conf="provided->default(compile)">
+			<exclude org="com.esotericsoftware.kryo" module="kryo" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="io.netty" module="netty-all" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-connector-kafka-0.10_2.11" rev="1.2.0" conf="compile->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-connector-cassandra_2.11" rev="1.2.0" conf="compile->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="org.apache.flink" name="flink-clients_2.11" rev="1.2.0" conf="compile->default(compile)">
+			<exclude org="com.esotericsoftware.kryo" module="kryo" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="com.codahale.metrics" name="metrics-core" rev="3.0.2" conf="compile->default(compile)">
+			<exclude org="org.slf4j" module="*" name="*" type="slf4j-log4j12" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="log4j" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="org.spark-project" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="javax.jms" module="*" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.esotericsoftware.kryo" module="*" name="*" type="kryo" ext="*" conf="" matcher="exact"/>
+		</dependency>
+	</dependencies>
+</ivy-module>

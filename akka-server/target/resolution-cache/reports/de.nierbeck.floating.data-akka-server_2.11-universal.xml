@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="de.nierbeck.floating.data"
+		module="akka-server_2.11"
+		revision="0.2.2-SNAPSHOT"
+		conf="universal"
+		confs="universal, universal-docs, universal-src, windows, docker, compile, runtime, test, provided, optional, linux, rpm, debian, compile-internal, runtime-internal, test-internal, plugin, sources, docs, pom, scala-tool"
+		date="20170605211825"/>
+	<dependencies>
+	</dependencies>
+</ivy-report>
