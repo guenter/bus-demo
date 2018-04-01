@@ -67,7 +67,7 @@
   "fetch": [],
   "constraints": [],
   "labels": {
-    "DCOS_SERVICE_NAME": "/dev/bus-demo/ui",
+    "DCOS_SERVICE_NAME": "dev-bus-demo-ui",
     "DCOS_SERVICE_PORT_INDEX": "0",
     "DCOS_SERVICE_SCHEME": "http"
   }
