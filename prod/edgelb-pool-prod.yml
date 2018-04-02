@@ -1,0 +1,30 @@
+---
+pools:
+  - name: bus-demo-prod
+    apiVersion: V2
+    count: 1
+    haproxy:
+      frontends:
+        - bindPort: 80
+          protocol: HTTP
+          linkBackend:
+            defaultBackend: bus-demo-web
+        - bindPort: 8001
+          protocol: HTTP
+          linkBackend:
+            defaultBackend: bus-demo-web2
+      backends:
+        - name: bus-demo-web
+          protocol: HTTP
+          services:
+            - marathon:
+                serviceID: /prod/bus-demo/ui
+              endpoint:
+                portName: web
+        - name: bus-demo-web2
+          protocol: HTTP
+          services:
+            - marathon:
+                serviceID: /prod/bus-demo/ui
+              endpoint:
+                portName: web2

@@ -1,0 +1,7 @@
+{
+    "service": {
+        "secretName": "edgelb-secret",
+        "principal": "edgelb-principal",
+        "mesosProtocol": "https"
+    }
+}
