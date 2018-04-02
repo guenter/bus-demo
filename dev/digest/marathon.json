@@ -1,0 +1,52 @@
+{
+  "id": "/dev/bus-demo/digest",
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "mesosphere/spark:2.3.0-2.2.1-2-hadoop-2.6",
+      "forcePullImage": true,
+      "privileged": false,
+      "parameters": []
+    }
+  },
+  "cmd": "unset MESOS_EXECUTOR_ID MESOS_FRAMEWORK_ID MESOS_SLAVE_ID MESOS_SLAVE_PID MESOS_TASK_ID; spark-submit --verbose --name dev/KafkaToCassandraSparkApp --master mesos://leader.mesos:5050 --driver-cores 1 --driver-memory 1024M --total-executor-cores 4 --conf spark.mesos.executor.docker.image=mesosphere/spark:2.3.0-2.2.1-2-hadoop-2.6 --conf spark.executor.home=/opt/spark/dist --class de.nierbeck.floating.data.stream.spark.KafkaToCassandraSparkApp spark-digest_2.11-0.2.1-SNAPSHOT-assembly.jar METRO-Vehicles node-0-server.devcassandra.autoip.dcos.thisdcos.directory:9042 broker.devkafka.l4lb.thisdcos.directory:9092",
+  "cpus": 1,
+  "mem": 1024,
+  "disk": 0,
+  "env": {
+    "PATH": "/usr/bin:/bin:/usr/lib/jvm/jre1.8.0_112/bin:/opt/spark/dist/bin",
+    "JAVA_HOME": "/usr/lib/jvm/jre1.8.0_152",
+    "LD_LIBRARY_PATH": "/opt/mesosphere/lib:/opt/mesosphere/libmesos-bundle/lib:/usr/lib",
+    "SPARK_LOG_LEVEL": "INFO",
+    "SPARK_USER": "root"
+  },
+  "instances": 1,
+  "maxLaunchDelaySeconds": 3600,
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "host"
+    }
+  ],
+  "portDefinitions": [],
+  "requirePorts": false,
+  "upgradeStrategy": {
+    "maximumOverCapacity": 1,
+    "minimumHealthCapacity": 1
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 0,
+    "expungeAfterSeconds": 0
+  },
+  "healthChecks": [],
+  "fetch": [
+    {
+      "uri": "https://oss.sonatype.org/content/repositories/snapshots/de/nierbeck/floating/data/spark-digest_2.11/0.2.1-SNAPSHOT/spark-digest_2.11-0.2.1-SNAPSHOT-assembly.jar"
+    }
+  ],
+  "constraints": []
+}
