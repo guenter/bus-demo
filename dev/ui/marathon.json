@@ -14,7 +14,6 @@
       "parameters": []
     }
   },
-  "cmd":
   "cpus": 0.1,
   "disk": 0,
   "env": {
