@@ -65,10 +65,5 @@
     "expungeAfterSeconds": 0
   },
   "fetch": [],
-  "constraints": [],
-  "labels": {
-    "DCOS_SERVICE_NAME": "/prod/bus-demo/ui",
-    "DCOS_SERVICE_PORT_INDEX": "0",
-    "DCOS_SERVICE_SCHEME": "http"
-  }
+  "constraints": []
 }
