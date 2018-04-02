@@ -1,18 +1,11 @@
 node {
     stage 'Checkout'
-    checkout scm
 
     stage 'Build'
-    sh "echo Building ..."
 
     stage 'Deploy'
     marathon(
         url: 'http://leader.mesos:8080',
-        filename: 'dev/ingest/marathon.json'
-    )
-
-    marathon(
-        url: 'http://leader.mesos:8080',
-        filename: 'dev/ui/marathon.json'
+        filename: 'dev/digest/marathon.json'
     )
 }
