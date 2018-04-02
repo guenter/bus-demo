@@ -26,7 +26,7 @@
       "ignoreHttp1xx": false,
       "intervalSeconds": 60,
       "maxConsecutiveFailures": 3,
-      "port": 8002,
+      "port": 8000,
       "timeoutSeconds": 20,
       "delaySeconds": 15,
       "protocol": "HTTP",
@@ -46,12 +46,12 @@
     {
       "name": "web",
       "protocol": "tcp",
-      "port": 8002
+      "port": 8000
     },
     {
       "name": "web2",
       "protocol": "tcp",
-      "port": 8003
+      "port": 8001
     }
   ],
   "requirePorts": true,
