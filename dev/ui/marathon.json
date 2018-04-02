@@ -9,7 +9,7 @@
     "type": "MESOS",
     "volumes": [],
     "docker": {
-      "image": "superguenter/akka-server:0.4.1-SNAPSHOT",
+      "image": "anierbeck/akka-server:0.2.1-SNAPSHOT",
       "forcePullImage": true,
       "parameters": []
     }
